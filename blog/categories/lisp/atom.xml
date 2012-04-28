@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Lisp | Random Notes]]></title>
+  <link href="http://m2ym.github.com/blog/categories/lisp/atom.xml" rel="self"/>
+  <link href="http://m2ym.github.com/"/>
+  <updated>2012-04-28T18:07:54+09:00</updated>
+  <id>http://m2ym.github.com/</id>
+  <author>
+    <name><![CDATA[m2ym]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[マクロ内でevalするべきでない理由]]></title>
+    <link href="http://m2ym.github.com/blog/2012/04/28/eval-in-macros/"/>
+    <updated>2012-04-28T17:00:00+09:00</updated>
+    <id>http://m2ym.github.com/blog/2012/04/28/eval-in-macros</id>
+    <content type="html"><![CDATA[<p>答え：レキシカル環境が無視されるから。</p>
+
+<p>実例で解説しよう。<a href="http://www.pps.jussieu.fr/~jch/software/cl-yacc/">CL-Yacc</a>というライブラリがある。名前の通りyaccをCommon Lispにポートしたものだ。実装は単純明快で、背景となる理論を知っていればすんなり読めるはずだ。</p>
+
+<p>CL-Yaccは<code>define-parser</code>というマクロを提供しており、ユーザーはこれを用いてパーサーを定義する。以下に簡単な四則演算パーサーの例を示す。</p>
+
+<p>```common-lisp
+(yacc:define-parser <em>parser</em>
+  (:start-symbol expression)
+  (:terminals (integer + - * /))</p>
+
+<p>  (expression
+   (expression + expression (lambda (a _ b) (declare (ignore <em>)) (+ a b)))
+   (expression - expression (lambda (a _ b) (declare (ignore </em>)) (- a b)))
+   (expression * expression (lambda (a _ b) (declare (ignore <em>)) (* a b)))
+   (expression / expression (lambda (a _ b) (declare (ignore </em>)) (/ a b)))
+   integer))
+```</p>
+
+<p>セマンティックアクションがすべて類似していることに気付くだろう。試しに<code>macrolet</code>を使って以下のように書きかえてみる。</p>
+
+<p>```common-lisp
+(macrolet ((app (op)</p>
+
+<pre><code>         `(lambda (a _ b)
+            (declare (ignore _))
+            (,op a b))))
+</code></pre>
+
+<p>  (yacc:define-parser <em>parser</em></p>
+
+<pre><code>(:start-symbol expression)
+(:terminals (integer + - * /))
+
+(expression
+ (expression + expression (app +))
+ (expression - expression (app -))
+ (expression * expression (app *))
+ (expression / expression (app /))
+ integer)))
+</code></pre>
+
+<p>```</p>
+
+<p>ネストは深くなったが、パーサー定義はより簡潔になったはずだ。しかし、この新しい定義を評価（コンパイル）すると<code>The function APP is undefined.</code>というエラーが発生する。なぜか。</p>
+
+<p>CL-Yaccは<strong>マクロ展開時</strong>にパーサーテーブルを生成する。そのとき、セマンティックアクションも関数形式に変換して同テーブルに格納する。このような手順をとる場合、セマンティックアクションとして<code>define-parser</code>に記述されたフォーム（先の例では<code>(lambda (a _ b) ...)</code>）は<code>eval</code>で評価せざるを得ない。</p>
+
+<p><code>eval</code>に渡されたフォームは空レキシカル環境、つまりグローバル環境上で評価される。空レキシカル環境上で評価されるということは、<code>symbol-macrolet</code>や<code>macrolet</code>などのレキシカル環境に作用するオペレータが全く無効になるということである（たとえ字句的に包含していようが）。したがって、上記の<code>APP</code>は見えなかったというわけである。</p>
+
+<p>この問題は全くもってLispの力を制限するものであるから、本当に必要なときを除いて、特にマクロ展開中は、<code>eval</code>は使わないようにすべきである。</p>
+]]></content>
+  </entry>
+  
+</feed>

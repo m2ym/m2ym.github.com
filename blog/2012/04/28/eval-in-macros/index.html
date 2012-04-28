@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Random Notes</title>
+  <title>マクロ内でevalするべきでない理由 - Random Notes</title>
   <meta name="author" content="m2ym">
 
   
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://m2ym.github.com">
+  <link rel="canonical" href="http://m2ym.github.com/blog/2012/04/28/eval-in-macros">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -62,15 +62,12 @@
 </nav>
   <div id="main">
     <div id="content">
-      <div class="blog-index">
+      <div>
+<article class="hentry" role="article">
   
-  
-  
-    <article>
-      
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2012/04/28/eval-in-macros/">マクロ内でevalするべきでない理由</a></h1>
+      <h1 class="entry-title">マクロ内でevalするべきでない理由</h1>
     
     
       <p class="meta">
@@ -88,14 +85,14 @@
 
 <time datetime="2012-04-28T17:00:00+09:00" pubdate data-updated="true">Apr 28<span>th</span>, 2012</time>
         
-         | <a href="/blog/2012/04/28/eval-in-macros/#disqus_thread">Comments</a>
+         | <a href="#disqus_thread">Comments</a>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>答え：レキシカル環境が無視されるから。</p>
+<div class="entry-content"><p>答え：レキシカル環境が無視されるから。</p>
 
 <p>実例で解説しよう。<a href="http://www.pps.jussieu.fr/~jch/software/cl-yacc/">CL-Yacc</a>というライブラリがある。名前の通りyaccをCommon Lispにポートしたものだ。実装は単純明快で、背景となる理論を知っていればすんなり読めるはずだ。</p>
 
@@ -165,22 +162,16 @@
 
 <p>この問題は全くもってLispの力を制限するものであるから、本当に必要なときを除いて、特にマクロ展開中は、<code>eval</code>は使わないようにすべきである。</p>
 </div>
-  
-  
 
 
-    </article>
-  
-  
-    <article>
+  <footer>
+    <p class="meta">
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/04/21/first-post/">初投稿</a></h1>
-    
-    
-      <p class="meta">
-        
+  
+
+<span class="byline author vcard">Posted by <span class="fn">m2ym</span></span>
+
+      
 
 
 
@@ -192,52 +183,44 @@
   
 
 
-<time datetime="2012-04-21T23:09:00+09:00" pubdate data-updated="true">Apr 21<span>st</span>, 2012</time>
-        
-         | <a href="/blog/2012/04/21/first-post/#disqus_thread">Comments</a>
-        
-      </p>
+<time datetime="2012-04-28T17:00:00+09:00" pubdate data-updated="true">Apr 28<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/lisp/'>Lisp</a>
+  
+</span>
+
+
+    </p>
     
-  </header>
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://m2ym.github.com/blog/2012/04/28/eval-in-macros/" data-via="m2ym" data-counturl="http://m2ym.github.com/blog/2012/04/28/eval-in-macros/" >Tweet</a>
+  
+  
+  
+</div>
 
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/04/21/first-post/" title="Previous Post: 初投稿">&laquo; 初投稿</a>
+      
+      
+    </p>
+  </footer>
+</article>
 
-  <div class="entry-content"><p>Octopressでブログを初めることにした。Markdown記法で書けるのが主な理由。テストがてら投稿してみる。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='common-lisp'><span class='line'><span class="p">(</span><span class="nb">print</span>
-</span><span class='line'> <span class="p">(</span><span class="nb">loop</span> <span class="nv">for</span> <span class="nv">i</span> <span class="nv">from</span> <span class="mi">1</span> <span class="nv">to</span> <span class="mi">100</span>
-</span><span class='line'>       <span class="k">if</span> <span class="p">(</span><span class="nb">zerop</span> <span class="p">(</span><span class="nb">mod</span> <span class="nv">i</span> <span class="mi">15</span><span class="p">))</span>
-</span><span class='line'>         <span class="nv">collect</span> <span class="s">&quot;Fizz Buzz&quot;</span>
-</span><span class='line'>       <span class="nv">else</span> <span class="k">if</span> <span class="p">(</span><span class="nb">zerop</span> <span class="p">(</span><span class="nb">mod</span> <span class="nv">i</span> <span class="mi">3</span><span class="p">))</span>
-</span><span class='line'>         <span class="nv">collect</span> <span class="s">&quot;Fizz&quot;</span>
-</span><span class='line'>       <span class="nv">else</span> <span class="k">if</span> <span class="p">(</span><span class="nb">zerop</span> <span class="p">(</span><span class="nb">mod</span> <span class="nv">i</span> <span class="mi">5</span><span class="p">))</span>
-</span><span class='line'>         <span class="nv">collect</span> <span class="s">&quot;Buzz&quot;</span>
-</span><span class='line'>       <span class="nv">else</span>
-</span><span class='line'>         <span class="nv">collect</span> <span class="nv">i</span><span class="p">))</span>
-</span></code></pre></td></tr></table></div></figure>
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
-  
-  
 
-
-    </article>
-  
-  <div class="pagination">
-    
-    <a href="/blog/archives">Blog Archives</a>
-    
-  </div>
-</div>
 <aside class="sidebar">
   
     <section>
@@ -258,7 +241,7 @@
 <section>
   <h1>GitHub Repos</h1>
   <ul id="gh_repos">
-    <li class="loading">Status updating&#8230;</li>
+    <li class="loading">Status updating...</li>
   </ul>
   
   <a href="https://github.com/m2ym">@m2ym</a> on GitHub
@@ -288,7 +271,7 @@
 <section>
   <h1>Latest Tweets</h1>
   <ul id="tweets">
-    <li class="loading">Status updating&#8230;</li>
+    <li class="loading">Status updating...</li>
   </ul>
   <script type="text/javascript">
     $.domReady(function(){
@@ -308,6 +291,7 @@
   
 </aside>
 
+
     </div>
   </div>
   <footer role="contentinfo"><p>
@@ -322,7 +306,10 @@
       var disqus_shortname = 'm2ym-blog';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://m2ym.github.com/blog/2012/04/28/eval-in-macros/';
+        var disqus_url = 'http://m2ym.github.com/blog/2012/04/28/eval-in-macros/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
